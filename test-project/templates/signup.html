@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form method="post">
+	<div class="grid">
+		<div class="row" style="margin-top:20px;">
+			<div class="col-2">
+				<label>Username: </label>
+			</div>
+			<div class="col-20">
+				<input type="text" name="username" value="{{ username }}">
+				{% if needs_username %}
+					<label style="color:red">Please enter a username</label>
+				{% endif %}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-2">
+				<label>Password: </label>
+			</div>
+			<div class="col-10">
+				<input type="password" name="password" value="">
+				{% if needs_password %}
+					<label style="color:red">Please enter a password</label>
+				{% endif %}
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-2">
+				<label class="col-3">Verify Password: </label>
+			</div>
+			<div class="col-10">
+				<input type="password" name="verify_password" value="">
+				{% if unverified %}
+					<label style="color:red">Your passwords didn't match</label>
+				{% endif %}
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-2">
+				<label class="col-3">Email (optional): </label>
+			</div>
+			<div class="col-10">
+				<input type="text" name="email" value="{{email}}">
+				{% if needs_email %}
+					<p style="display:inline; color:red">Your email is invalid</p>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+	<br>
+	<input type="submit">
+
+</form>
+{% endblock %}

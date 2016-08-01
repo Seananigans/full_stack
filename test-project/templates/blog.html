@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+{% for post in posters %}
+<h1>{{post.subject}}</h1>
+<pre>{{post.content}}</pre>
+{% endfor %}
+
+
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>ASCII CHAN!!!</h1>
+
+<form method="post">
+	<label>Title<br>
+		<input type="text" name="title" value="{{title}}">
+	</label>
+	<br>
+	<br>
+	<label>
+		<div>Art<br>
+			<textarea name="art">{{ art }}</textarea>
+		</div>
+	</label>
+	<br>
+	<input type="submit">
+
+	<div class="error">
+		<p>{{error}}</p>
+	</div>
+</form>
+
+<hr>
+
+{% for art in arts %}
+<div class="art">
+	<div class="art-title">{{art.title}}</div>
+	<pre class="art-body">{{art.art}}</pre>
+</div>
+<hr>
+{% endfor %}
+
+{% endblock %}
