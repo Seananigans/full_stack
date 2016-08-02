@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grid flex-center">
+	<form method="post">
+		<div class="row">
+			<div class="col-6 item-label">Username</div>
+			<div class="col-6 item-entry">
+				<input name="username" value="{{username}}">
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-6 item-label">Password</div>
+			<div class="col-6 item-entry">
+				<input name="password">
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-6 item-label">Verify Password</div>
+			<div class="col-6 item-entry">
+				<input name="verify">
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-6 item-label">Email (Optional)</div>
+			<div class="col-6 item-entry">
+				<input name="email" value="{{email}}">
+			</div>
+		</div>
+		<div class="row">
+			<input type="submit" class="center">
+		</div>
+	</form>
+</div>
+{% endblock %}
