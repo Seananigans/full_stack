@@ -4,32 +4,49 @@
 <div class="grid flex-center">
 	<form method="post">
 		<div class="row">
-			<div class="col-6 item-label">Username</div>
+			<div class="col-6 item-label">Username:</div>
 			<div class="col-6 item-entry">
 				<input name="username" value="{{username}}">
+				{% if needs_password %}
+				<label style="color: red">Please enter a username.</label>
+				{% endif %}
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-6 item-label">Password</div>
+			<div class="col-6 item-label">Password:</div>
 			<div class="col-6 item-entry">
 				<input name="password">
+				{% if needs_password %}
+				<label style="color: red">Please enter a password.</label>
+				{% endif %}
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-6 item-label">Verify Password</div>
+			<div class="col-6 item-label">Verify Password:</div>
 			<div class="col-6 item-entry">
 				<input name="verify">
+				{% if needs_password %}
+				<label style="color: red">Passwords need to match!</label>
+				{% endif %}
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-6 item-label">Email (Optional)</div>
+			<div class="col-6 item-label">Email (Optional):</div>
 			<div class="col-6 item-entry">
 				<input name="email" value="{{email}}">
+				{% if needs_password %}
+				<label style="color: red">This needs to be a real email.</label>
+				{% endif %}
 			</div>
 		</div>
 		<div class="row">
-			<input type="submit" class="center">
+			<input type="submit" class="center" id="submit">
 		</div>
+		{% if error %}
+		<div class="row">
+			<p class="center" style="color: red; font-size: 32px;">{{error}}</p>
+		</div>
+		{% endif %}
 	</form>
 </div>
 {% endblock %}
