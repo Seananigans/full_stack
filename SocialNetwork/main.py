@@ -1,6 +1,7 @@
 import os
-import string
 import random
+import re
+import string
 
 import webapp2
 import jinja2
@@ -14,7 +15,20 @@ jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), aut
 
 from google.appengine.ext import db
 
+"""VALIDATION FOR USERNAME, PASSWORDS, AND EMAIL"""
+USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
+def valid_username(username):
+    return USER_RE.match(username)
 
+PASS_RE = re.compile(r"^.{3,20}$")
+def valid_password(username):
+    return USER_RE.match(username)
+
+EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
+def valid_email(email):
+	return not email or EMAIL_RE.match(email)
+
+"""HASHING FOR COOKIES AND PASSWORDS."""
 def hash_str(s):
 	return hmac.new(SECRET, s).hexdigest()
 
@@ -65,13 +79,57 @@ class MainPage(Handler):
 
 		self.response.headers.add_header("Set-Cookie", "visits=%s" % new_cookie_val)
 
-		
+
 		self.render("signup.html", username="", email="")
 		# if visits>=10:
 		# 	self.write("You are the best ever! You've been here {} times".format(visits))
 		# else:
 		# 	self.write("Hello World! You've been here %s times." % visits)
 
+class LogIn(db.Model):
+	# username = db.StringProperty(required=True)
+	# password = db.StringProperty(required=True)
+	pass
+
+class SignUpHandler(Handler):
+	def render_front(self, username="", email=""):
+		self.render("signup.html", username=username, email=email)
+
+	def get(self):
+		username=""
+		username_cookie_str = self.request.cookies.get(username)
+		if username_cookie_str:
+			username_cookie_val = check_secure_val(username_cookie_str)
+			if username_cookie_val:
+				username = username_cookie_val
+
+		self.render_front()
+
+	def post(self):
+		username = self.request.get("username")
+		password = self.request.get("password")
+		verify = self.request.get("verify")
+		email = self.request.get("email")
+
+		needs_username = not valid_username(username)
+		needs_password = not valid_password(password)
+		needs_verify = (password != verify)
+		needs_email = not valid_email(email)
+
+		if needs_username or needs_password or needs_verify or needs_email:
+			error = "Please properly fill in all required fields."
+			self.render("signup.html", 
+				username=username, 
+				email=email, 
+				needs_username = needs_username,
+				needs_password = needs_password,
+				needs_verify = needs_verify,
+				needs_email = needs_email,
+				error=error)
+		else:
+			self.render_front(username=username, email=email)
+
 app = webapp2.WSGIApplication([
 	("/", MainPage),
+	("/signup", SignUpHandler),
 	], debug=True)
