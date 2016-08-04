@@ -116,7 +116,7 @@ class SignUpHandler(Handler):
 		needs_verify = (password != verify)
 		needs_email = not valid_email(email)
 
-		if needs_username or needs_password or needs_verify or needs_email:
+		if needs_verify or needs_username or needs_password or needs_email:
 			error = "Please properly fill in all required fields."
 			self.render("signup.html", 
 				username=username, 
@@ -127,9 +127,16 @@ class SignUpHandler(Handler):
 				needs_email = needs_email,
 				error=error)
 		else:
-			self.render_front(username=username, email=email)
+			self.response.headers.add_header('Set-Cookie', 'username=%s; Path=/' % str(username))
+			self.redirect("/welcome")
+
+class WelcomeHandler(Handler):
+	def get(self):
+		username = self.request.cookies.get('username')
+		self.render("welcome.html", username=username)
 
 app = webapp2.WSGIApplication([
 	("/", MainPage),
 	("/signup", SignUpHandler),
+	("/welcome", WelcomeHandler),
 	], debug=True)
