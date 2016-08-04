@@ -7,8 +7,8 @@
 			<div class="col-6 item-label">Username:</div>
 			<div class="col-6 item-entry">
 				<input name="username" value="{{username}}">
-				{% if needs_password %}
-				<label style="color: red">Please enter a username.</label>
+				{% if needs_username %}
+					<label style="color: red">Please enter a username.</label>
 				{% endif %}
 			</div>
 		</div>
@@ -17,7 +17,7 @@
 			<div class="col-6 item-entry">
 				<input name="password">
 				{% if needs_password %}
-				<label style="color: red">Please enter a password.</label>
+					<label style="color: red">Please enter a password.</label>
 				{% endif %}
 			</div>
 		</div>
@@ -25,8 +25,8 @@
 			<div class="col-6 item-label">Verify Password:</div>
 			<div class="col-6 item-entry">
 				<input name="verify">
-				{% if needs_password %}
-				<label style="color: red">Passwords need to match!</label>
+				{% if needs_verify %}
+					<label style="color: red">Passwords need to match!</label>
 				{% endif %}
 			</div>
 		</div>
@@ -34,8 +34,8 @@
 			<div class="col-6 item-label">Email (Optional):</div>
 			<div class="col-6 item-entry">
 				<input name="email" value="{{email}}">
-				{% if needs_password %}
-				<label style="color: red">This needs to be a real email.</label>
+				{% if needs_email %}
+					<label style="color: red">This needs to be a real email.</label>
 				{% endif %}
 			</div>
 		</div>
