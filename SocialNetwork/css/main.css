@@ -2,8 +2,6 @@
 	-moz-box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
-
-	font-size: 1em;
 }
 
 #submit {
@@ -11,7 +9,9 @@
 }
 
 input[type=submit]{ 
-	padding: 20px 10px; line-height: 28px; height= 50px;
+	padding: 20px 10px; 
+	line-height: 28px; 
+	height= 50px;
 }
 
 .item-label {
@@ -47,7 +47,7 @@ input[type=submit]{
 	padding-left: 15px;
 	padding-right: 15px;
 
-	background-color: #888888;
+	background-color: #AAAAAA;
 }
 
 .row {
