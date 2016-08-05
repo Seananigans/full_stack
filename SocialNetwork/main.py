@@ -50,9 +50,10 @@ def make_pw_hash(name, pw, salt=None):
 	return "%s|%s" %(h, salt)
 
 def valid_pw(name, pw, h):
-	sale = h.split("|")[1]
+	salt = h.split("|")[1]
 	return h == make_pw_hash(name, pw, salt)
 
+"""HANDLERS FOR WEBPAGES"""
 class Handler(webapp2.RequestHandler):
 	def write(self, *a, **kw):
 		self.response.out.write(*a, **kw)
@@ -80,7 +81,7 @@ class MainPage(Handler):
 		self.response.headers.add_header("Set-Cookie", "visits=%s" % new_cookie_val)
 
 
-		self.render("signup.html", username="", email="")
+		self.render("base.html", username="", email="")
 		# if visits>=10:
 		# 	self.write("You are the best ever! You've been here {} times".format(visits))
 		# else:
@@ -127,13 +128,20 @@ class SignUpHandler(Handler):
 				needs_email = needs_email,
 				error=error)
 		else:
-			self.response.headers.add_header('Set-Cookie', 'username=%s; Path=/' % str(username))
-			self.redirect("/welcome")
+			login = make_secure_val(username)
+			if valid_pw(username, "", login):
+				self.response.headers.add_header('Set-Cookie', 'username=%s; Path=/' % str(username))
+				self.redirect("/welcome")
+			else:
+				self.redirect("/signup")
 
 class WelcomeHandler(Handler):
 	def get(self):
 		username = self.request.cookies.get('username')
-		self.render("welcome.html", username=username)
+		if not check_secure_val(username):
+			self.redirect("/signup")
+		else:
+			self.render("welcome.html", username=username)
 
 app = webapp2.WSGIApplication([
 	("/", MainPage),
