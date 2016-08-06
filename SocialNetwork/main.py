@@ -74,11 +74,11 @@ class MainPage(Handler):
 			if cookie_val:
 				visits = int(cookie_val)
 
-		visits += 1
+		# visits += 1
 
-		new_cookie_val = make_secure_val(str(visits))
+		# new_cookie_val = make_secure_val(str(visits))
 
-		self.response.headers.add_header("Set-Cookie", "visits=%s" % new_cookie_val)
+		# self.response.headers.add_header("Set-Cookie", "visits=%s" % new_cookie_val)
 
 
 		self.render("base.html", username="", email="")
