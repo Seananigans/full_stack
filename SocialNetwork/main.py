@@ -67,19 +67,18 @@ class Handler(webapp2.RequestHandler):
 
 class MainPage(Handler):
 	def get(self):
-		visits = 0
-		visit_cookie_str = self.request.cookies.get('visits')
-		if visit_cookie_str:
-			cookie_val = check_secure_val(visit_cookie_str)
-			if cookie_val:
-				visits = int(cookie_val)
+		# visits = 0
+		# visit_cookie_str = self.request.cookies.get('visits')
+		# if visit_cookie_str:
+		# 	cookie_val = check_secure_val(visit_cookie_str)
+		# 	if cookie_val:
+		# 		visits = int(cookie_val)
 
 		# visits += 1
 
 		# new_cookie_val = make_secure_val(str(visits))
 
-		# self.response.headers.add_header("Set-Cookie", "visits=%s" % new_cookie_val)
-
+		# self.response.headers.add_header("Set-Cookie", "visits=%s" % new_cookie_val, expires="Thu, 01-Jan-1970 00:00:10 GMT")
 
 		self.render("base.html", username="", email="")
 		# if visits>=10:
