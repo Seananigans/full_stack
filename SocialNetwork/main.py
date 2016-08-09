@@ -128,16 +128,20 @@ class SignUpHandler(Handler):
 				error=error)
 		else:
 			login = make_secure_val(username)
-			if valid_pw(username, "", login):
-				self.response.headers.add_header('Set-Cookie', 'username=%s; Path=/' % str(username))
+			if login:
+				self.response.headers.add_header('Set-Cookie', 'username=%s; Path=/' % str(login))
 				self.redirect("/welcome")
 			else:
 				self.redirect("/signup")
 
 class WelcomeHandler(Handler):
 	def get(self):
-		username = self.request.cookies.get('username')
-		if not check_secure_val(username):
+		username = self.request.cookies.get('username').split("|")[0]
+		print username
+		print make_secure_val(username.split("|")[0])
+		print check_secure_val(username.split("|")[0])
+		if check_secure_val(username):
+			# self.render("welcome.html", username=username)
 			self.redirect("/signup")
 		else:
 			self.render("welcome.html", username=username)
