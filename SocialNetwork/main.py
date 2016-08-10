@@ -134,6 +134,17 @@ class SignUpHandler(Handler):
 			else:
 				self.redirect("/signup")
 
+class LoginHandler(Handler):
+	def get(self):
+		self.render("login.html")
+
+	def post(self):
+		error = False
+		if error:
+			self.redirect("/signup")
+		else:
+			self.redirect("/welcome")
+
 class WelcomeHandler(Handler):
 	def get(self):
 		username = self.request.cookies.get('username').split("|")[0]
@@ -149,5 +160,6 @@ class WelcomeHandler(Handler):
 app = webapp2.WSGIApplication([
 	("/", MainPage),
 	("/signup", SignUpHandler),
+	("/login", LoginHandler),
 	("/welcome", WelcomeHandler),
 	], debug=True)
