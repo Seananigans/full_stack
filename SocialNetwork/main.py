@@ -53,6 +53,38 @@ def valid_pw(name, pw, h):
 	salt = h.split("|")[1]
 	return h == make_pw_hash(name, pw, salt)
 
+"""DATABASE FOR USERNAME AND PASSWORDS"""
+def users_key(group="default"):
+	return db.Key.from_path('users', group)
+
+class User(db.Model):
+	name = db.StringProperty(required=True)
+	pw_hash = db.StringProperty(required=True)
+	email = db.StringProperty()
+
+	@classmethod
+	def by_id(cls, uid):
+		return User.get_by_id(uid, parent=users_key())
+
+	@classmethod
+	def by_name(cls, name):
+		u = User.all().filter("name =", name).get()
+		return u
+
+	@classmethod
+	def register(cls, name, password, email=None):
+		pw_hash = make_pw_hash(name, password)
+		return User(parent=users_key(),
+			name=name,
+			pw_hash=pw_hash,
+			email=email)
+
+	@classmethod
+	def login(cls, name, password):
+		u = cls.by_name(name)
+		if u and valid_pw(name, password, u.pw_hash):
+			return u
+
 """HANDLERS FOR WEBPAGES"""
 class Handler(webapp2.RequestHandler):
 	def write(self, *a, **kw):
@@ -63,33 +95,33 @@ class Handler(webapp2.RequestHandler):
 		return t.render(params)
 
 	def render(self, template, **kw):
-		self.write(self.render_str(template, **kw))
+		self.write(self.render_str(template, **kw))	
+
+	def set_secure_cookie(self, name, val):
+		cookie_val = str( make_secure_val(val) )
+		self.response.headers.add_header(
+			'Set-Cookie',
+			'%s=%s; Path=/' % (name, cookie_val))
+
+	def read_secure_cookie(self, name):
+		cookie_val = self.request.cookies.get(name)
+		return cookie_val and check_secure_val(cookie_val)
+
+	def login(self, user):
+		self.set_secure_cookie("username", str(user.key().id()))
+
+	def logout(self):
+		self.response.headers.add_header('Set-Cookie', 'username=; Path=/')
+
+	def initialize(self, *a, **kw):
+		webapp2.RequestHandler.initialize(self, *a, **kw)
+		uid = self.read_secure_cookie('username')
+		self.user = uid and User.by_id(int(uid))
+
 
 class MainPage(Handler):
 	def get(self):
-		# visits = 0
-		# visit_cookie_str = self.request.cookies.get('visits')
-		# if visit_cookie_str:
-		# 	cookie_val = check_secure_val(visit_cookie_str)
-		# 	if cookie_val:
-		# 		visits = int(cookie_val)
-
-		# visits += 1
-
-		# new_cookie_val = make_secure_val(str(visits))
-
-		# self.response.headers.add_header("Set-Cookie", "visits=%s" % new_cookie_val, expires="Thu, 01-Jan-1970 00:00:10 GMT")
-
 		self.render("base.html", username="", email="")
-		# if visits>=10:
-		# 	self.write("You are the best ever! You've been here {} times".format(visits))
-		# else:
-		# 	self.write("Hello World! You've been here %s times." % visits)
-
-class LogIn(db.Model):
-	# username = db.StringProperty(required=True)
-	# password = db.StringProperty(required=True)
-	pass
 
 class SignUpHandler(Handler):
 	def render_front(self, username="", email=""):
@@ -127,39 +159,52 @@ class SignUpHandler(Handler):
 				needs_email = needs_email,
 				error=error)
 		else:
-			login = make_secure_val(username)
-			if login:
-				self.response.headers.add_header('Set-Cookie', 'username=%s; Path=/' % str(login))
-				self.redirect("/welcome")
-			else:
-				self.redirect("/signup")
+			u = User.register(name=username, password=password, email=email)
+			u.put()
+			self.login(u)
+			self.redirect("/welcome")
 
 class LoginHandler(Handler):
+	def render_front(self, username="", error=""):
+		self.render("login.html", username=username, error=error)
+
 	def get(self):
-		self.render("login.html")
+		self.render_front()
 
 	def post(self):
-		error = False
-		if error:
-			self.redirect("/signup")
+		username = self.request.get("username")
+		password = self.request.get("password")
+
+		if not (valid_username(username) and valid_password(password)):
+			error = "Please enter a valid username and password."
+			self.render_front(username=username, error=error)
 		else:
-			self.redirect("/welcome")
+			user = User.login(name=username, password=password)
+			if user:
+				self.login(user)
+				self.redirect("/welcome")
+			else:
+				error = "The username and password do not match."
+				self.render_front(username=username, error=error)
+
+class LogoutHandler(Handler):
+	def get(self):
+		self.logout()
+		self.redirect("/signup")
 
 class WelcomeHandler(Handler):
 	def get(self):
-		username = self.request.cookies.get('username').split("|")[0]
-		print username
-		print make_secure_val(username.split("|")[0])
-		print check_secure_val(username.split("|")[0])
-		if check_secure_val(username):
-			# self.render("welcome.html", username=username)
-			self.redirect("/signup")
+		username = self.read_secure_cookie("username")
+		if self.user:
+			self.render('welcome.html', username=self.user.name)
 		else:
-			self.render("welcome.html", username=username)
+			self.redirect("/signup")
+
 
 app = webapp2.WSGIApplication([
 	("/", MainPage),
 	("/signup", SignUpHandler),
 	("/login", LoginHandler),
 	("/welcome", WelcomeHandler),
+	("/logout", LogoutHandler)
 	], debug=True)
