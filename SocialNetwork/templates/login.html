@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grid flex-center">
+	<div class="row">
+		<h1 class="center">Log In</h1>
+	</div>
+	<form method="post">
+		<div class="row">
+			<div class="col-6 item-label">Username:</div>
+			<div class="col-6 item-entry">
+				<input name="username" value="{{username}}">
+				{% if needs_username %}
+					<label style="color: red">Please enter a username.</label>
+				{% endif %}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-6 item-label">Password:</div>
+			<div class="col-6 item-entry">
+				<input name="password">
+				{% if needs_password %}
+					<label style="color: red">Please enter a password.</label>
+				{% endif %}
+			</div>
+		</div>
+		<div class="row">
+			<input type="submit" class="center" id="submit">
+		</div>
+		{% if error %}
+		<div class="row">
+			<p class="center" style="color: red; font-size: 32px;">{{error}}</p>
+		</div>
+		<div class="row">
+			<div class="col-12">
+				<a href="/signup" class="center" style="margin: auto; margin-bottom: 10px;">
+				   <input type="button" class="center" value="Sign Up!" style="width:33%"/>
+				</a>
+			</div>
+		</div>
+		{% endif %}
+	</form>
+</div>
+{% endblock %}
