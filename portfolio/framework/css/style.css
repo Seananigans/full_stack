@@ -1,0 +1,111 @@
+html {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	box-sizing: border-box;
+	font-family: sans-serif;
+	-ms-text-size-adjust: 100%;
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	width: 100%;
+	background: rgb(255, 255, 230);
+	padding-top: 32px;
+	padding-bottom: 64px;
+	font-size: 16px;
+	line-height: 1.2em;
+}
+
+img,
+embed,
+object,
+video {
+	max-width: 100%;
+}
+
+nav,
+a,
+button {
+	margin: 8px;
+	min-width: 48px;
+	min-height: 48px;
+}
+
+h1 {
+	color: green;
+}
+
+hr {
+	height: 10px;
+	background-color: black;
+}
+
+a {
+	display: inline;
+	position: relative;
+	z-index: 1;
+	padding: 2em;
+	margin: 3em;
+	padding-top: 200px;
+}
+
+#logo {
+	width: 200px;
+	display: block;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+#navigation {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	padding-top: 20px;
+}
+
+#cover-photo {
+	width: 100%;
+}
+
+@media only screen and (max-width: 992px) {
+	#signature {
+		text-align: center;
+	}
+}
+
+/*Maximum width*/
+@media only screen and (min-width: 1000px) {
+	body {
+		width: 1000px;
+	}
+}
+
+/*iPad*/
+@media only screen and (max-width: 769px) {
+	a {
+		display: block;
+		padding: 0;
+		padding-top: 1em;
+		padding-bottom: 1em;
+		margin: -1em;
+	}
+
+	#navigation {
+		text-align: center;
+		font-size: 1.5em;
+	}
+
+	#signature {
+		text-align: center;
+	}
+
+	#cover-photo {
+		width: 100%;
+	}
+}
+
+/*Nexus 5*/
+@media only screen and (max-width: 413px) {
+	/*No Changes*/
+}
