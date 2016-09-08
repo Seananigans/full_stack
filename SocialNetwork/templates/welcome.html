@@ -1,5 +1,65 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Welcome, {{username}}!</h1>
+
+<div class="grid">
+	<div class="row">
+		<h1 class="center">Welcome, {{username}}!</h1>
+	</div>
+	<div class="row">
+		<button class="center submit"><a href="/new">Create a post?</a></button>
+	</div>
+		{% if posts %}
+			{% for post in posts %}
+				<div class="row" style="border: 1px solid black;">
+					<div class="row" style="margin-bottom:0; padding-left:16px;">
+						<h2>{{ post.name }} </h2>
+					</div>
+					<div class="row" style="margin-top:0; padding-left:48px;">
+						<pre style="font-size:16px;">{{post.entry | safe}}</pre>
+					</div>
+					{% if post.comments %}
+						{% for comment in post.comments %}
+							<div class="row" style="margin-top:0; padding-left:64px;">
+								<p style="margin-right:8px; padding-right:8px; border-right: 2px solid black;">
+									<strong style="color:#660066;">{{comment.author}}</strong>
+								</p>
+								<pre style="font-size:14px; color:#660066;">{{ comment.content | safe }}</pre>
+							</div>
+						{% endfor %}
+					{% endif %}
+
+					<div class="row">
+						<a href="/like/{{post.key().id()}}" class="center submit">
+						<button style="width:100%;">
+						{% if post.already_liked(username) %}
+							Unlike
+						{% else %}
+							Like
+						{% endif %}
+						{{ post.likes }}
+						</button>
+						</a>
+						<a href="/newcomment/{{post.key().id()}}" class="center submit">
+							<button style="width:100%;">Comment</button>
+						</a>
+					{% if post.name == username %}
+						<a href="/edit/{{post.key().id()}}" class="center submit">
+							<button style="width:100%;">Edit</button>
+						</a>
+						<a href="/delete/{{post.key().id()}}" class="center submit">
+							<button style="width:100%;">Delete</button>
+						</a>
+					{% endif %}
+					</div>
+				</div>
+			{% endfor %}
+		{% endif %}
+	</div>
+	<div class="row">
+		<button class="center submit"><a href="/login">Sign In as Different User?</a></button>
+		<button class="center submit"><a href="/logout">Logout?</a></button>
+	</div>
+</div>
+
 {% endblock %}
