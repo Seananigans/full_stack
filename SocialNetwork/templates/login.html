@@ -25,20 +25,21 @@
 			</div>
 		</div>
 		<div class="row">
-			<input type="submit" class="center" id="submit">
+			<input type="submit" class="center col-6 btn">
 		</div>
 		{% if error %}
 		<div class="row">
 			<p class="center" style="color: red; font-size: 32px;">{{error}}</p>
 		</div>
+		{% endif %}
+
 		<div class="row">
 			<div class="col-12">
 				<a href="/signup" class="center" style="margin: auto; margin-bottom: 10px;">
-				   <input type="button" class="center" value="Sign Up!" style="width:33%"/>
+				   <input type="button" class="center col-4 btn" value="Sign Up!"/>
 				</a>
 			</div>
 		</div>
-		{% endif %}
 	</form>
 </div>
 {% endblock %}
