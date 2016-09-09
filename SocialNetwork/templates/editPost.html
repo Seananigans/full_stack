@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grid flex-center">
+	<div class="row">
+		<h1 class="center">Edit entry for {{name}}</h1>
+	</div>
+	<form method="post">
+		<div class="row">
+			<div class="col-12 item-label" style="text-align: center;">Post Here:</div>
+		</div>
+		<div class="row">
+			<div class="col-12 center">
+				<textarea rows='6' cols='80' name="post" class="center">{% if post %}{{post.entry}}{% endif %}</textarea>
+			</div>
+		</div>
+		<div class="row">
+			<input type="submit" class="center col-4 btn">
+		</div>
+	</form>
+	{% if error %}
+	<div class="row">
+		<p class="center" style="color: red; font-size: 32px;">{{error}}</p>
+	</div>
+	{% endif %}
+	<a href="/welcome" class="col-4 center">
+		<button class="btn">Cancel</button>
+	</a>
+</div>
+{% endblock %}

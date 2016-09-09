@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grid flex-center">
+	<div class="row center">
+		<h1 class="center" style="text-align: center;">Delete entry for {{name}}</h1>
+	</div>
+	<form method="post">
+		<div class="row">
+			<div class="col-12 item-label" style="text-align: center;">
+				<p>"""</p>
+				<p style="border: 1px black solid;">{{post.entry}}</p>
+				<p>"""</p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-12 item-label" style="text-align: center;">
+				<h4>Are you sure you want to delete the post?</h4>
+			</div>
+		</div>
+		<div class="row">
+			<input type="submit" class="center submit">
+		</div>
+	</form>
+	<a href="/welcome" class="col-4 center">
+		<button style="width:100%; height: 24px;">Cancel</button>
+	</a>
+</div>
+
+{% endblock %}
