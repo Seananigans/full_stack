@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grid">
+	<div class="row center">
+		<h1 class="center" style="text-align: center;">Here's the post:</h1>
+	</div>
+	<hr>
+	<form method="post">
+		<div class="row">
+			<div class="col-12 item-label" style="text-align: left; padding-left: 32px;">
+				<h3>{{post.name}}</h3>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-12 item-label" style="text-align: center;">
+				<p>"""</p>
+				<p>{{post.entry | safe}}</p>
+				<p>"""</p>
+			</div>
+		</div>
+		<hr>
+		<div class="row">
+			<div class="col-12 item-label" style="text-align: center;">
+				<h4>Are you sure you want to delete the post?</h4>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-6 center">
+				<pre rows='6' cols='80' name="comment" class="center">{{comment.content}}</pre>
+			</div>
+		</div>
+		<div class="row">
+			<input type="submit" class="center submit btn">
+		</div>
+	</form>
+	<div class="row">
+		<a href="/welcome" class="col-4 center">
+			<button class="btn">Cancel</button>
+		</a>
+	</div>
+</div>
+
+{% endblock %}
