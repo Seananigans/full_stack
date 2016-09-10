@@ -9,7 +9,7 @@
 		<div class="row">
 			<div class="col-6 item-label">Username:</div>
 			<div class="col-6 item-entry">
-				<input name="username" value="{{username}}">
+				<input type="text" name="username" value="{{username}}">
 				{% if needs_username %}
 					<label style="color: red">Please enter a username.</label>
 				{% endif %}
@@ -18,7 +18,7 @@
 		<div class="row">
 			<div class="col-6 item-label">Password:</div>
 			<div class="col-6 item-entry">
-				<input name="password">
+				<input type="password" name="password">
 				{% if needs_password %}
 					<label style="color: red">Please enter a password.</label>
 				{% endif %}
@@ -27,7 +27,7 @@
 		<div class="row">
 			<div class="col-6 item-label">Verify Password:</div>
 			<div class="col-6 item-entry">
-				<input name="verify">
+				<input type="password" name="verify">
 				{% if needs_verify %}
 					<label style="color: red">Passwords need to match!</label>
 				{% endif %}
@@ -36,14 +36,14 @@
 		<div class="row">
 			<div class="col-6 item-label">Email (Optional):</div>
 			<div class="col-6 item-entry">
-				<input name="email" value="{{email}}">
+				<input type="text" name="email" value="{{email}}">
 				{% if needs_email %}
 					<label style="color: red">This needs to be a real email.</label>
 				{% endif %}
 			</div>
 		</div>
 		<div class="row">
-			<input type="submit" class="center" id="submit">
+			<input type="submit" class="center col-6 btn">
 		</div>
 		{% if error %}
 		<div class="row">
@@ -51,5 +51,9 @@
 		</div>
 		{% endif %}
 	</form>
+
+	<div class="row">
+		<a href="/login" class="center col-4"><button class="btn">Log In?</button></a>
+	</div>
 </div>
 {% endblock %}
