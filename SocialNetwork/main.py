@@ -1,92 +1,22 @@
 import os
 import random
-import re
-import string
+import time
 
 import webapp2
 import jinja2
-import hmac
 
+from security_features import *
+from validation import *
+from db_setup import *
 
-SECRET = "Bananas"
 
 template_dir = os.path.join(os.path.dirname(__file__), "templates")
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
 
-from google.appengine.ext import db
-
-"""VALIDATION FOR USERNAME, PASSWORDS, AND EMAIL"""
-USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
-def valid_username(username):
-    return USER_RE.match(username)
-
-PASS_RE = re.compile(r"^.{3,20}$")
-def valid_password(username):
-    return USER_RE.match(username)
-
-EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
-def valid_email(email):
-	return not email or EMAIL_RE.match(email)
-
-"""HASHING FOR COOKIES AND PASSWORDS."""
-def hash_str(s):
-	return hmac.new(SECRET, s).hexdigest()
-
-def make_secure_val(s):
-	return "%s|%s" % (s, hash_str(s))
-
-def check_secure_val(h):
-	val = h.split("|")[0]
-	if h == make_secure_val(val):
-		return val
-
-def make_salt():
-	return "".join(random.choice(string.letters) for _ in xrange(15))
-
-def make_pw_hash(name, pw, salt=None):
-	if not salt:
-		salt = make_salt()
-	h = hmac.new(SECRET, name+pw+salt).hexdigest()
-	return "%s|%s" %(h, salt)
-
-def valid_pw(name, pw, h):
-	salt = h.split("|")[1]
-	return h == make_pw_hash(name, pw, salt)
-
-"""DATABASE FOR USERNAME AND PASSWORDS"""
-def users_key(group="default"):
-	return db.Key.from_path('users', group)
-
-class User(db.Model):
-	name = db.StringProperty(required=True)
-	pw_hash = db.StringProperty(required=True)
-	email = db.StringProperty()
-
-	@classmethod
-	def by_id(cls, uid):
-		return User.get_by_id(uid, parent=users_key())
-
-	@classmethod
-	def by_name(cls, name):
-		u = User.all().filter("name =", name).get()
-		return u
-
-	@classmethod
-	def register(cls, name, password, email=None):
-		pw_hash = make_pw_hash(name, password)
-		return User(parent=users_key(),
-			name=name,
-			pw_hash=pw_hash,
-			email=email)
-
-	@classmethod
-	def login(cls, name, password):
-		u = cls.by_name(name)
-		if u and valid_pw(name, password, u.pw_hash):
-			return u
 
 """HANDLERS FOR WEBPAGES"""
 class Handler(webapp2.RequestHandler):
+	"""Creates basic functionality for all pages."""
 	def write(self, *a, **kw):
 		self.response.out.write(*a, **kw)
 
@@ -95,7 +25,7 @@ class Handler(webapp2.RequestHandler):
 		return t.render(params)
 
 	def render(self, template, **kw):
-		self.write(self.render_str(template, **kw))	
+		self.write(self.render_str(template, **kw))
 
 	def set_secure_cookie(self, name, val):
 		cookie_val = str( make_secure_val(val) )
@@ -118,12 +48,8 @@ class Handler(webapp2.RequestHandler):
 		uid = self.read_secure_cookie('username')
 		self.user = uid and User.by_id(int(uid))
 
-
-class MainPage(Handler):
-	def get(self):
-		self.render("base.html", username="", email="")
-
-class SignUpHandler(Handler):
+class SignUp(Handler):
+	"""Handles requests to create a user in the system"""
 	def render_front(self, username="", email=""):
 		self.render("signup.html", username=username, email=email)
 
@@ -150,21 +76,34 @@ class SignUpHandler(Handler):
 
 		if needs_verify or needs_username or needs_password or needs_email:
 			error = "Please properly fill in all required fields."
-			self.render("signup.html", 
-				username=username, 
-				email=email, 
+			self.render("signup.html",
+				username=username,
+				email=email,
 				needs_username = needs_username,
 				needs_password = needs_password,
 				needs_verify = needs_verify,
 				needs_email = needs_email,
 				error=error)
 		else:
-			u = User.register(name=username, password=password, email=email)
-			u.put()
-			self.login(u)
-			self.redirect("/welcome")
+			user = User.by_name(name=username)
+			if user:
+				error = "Username exists. Please pick a different Username."
+				self.render("signup.html",
+					username=username,
+					email=email,
+					needs_username = needs_username,
+					needs_password = needs_password,
+					needs_verify = needs_verify,
+					needs_email = needs_email,
+					error=error)
+			else:
+				u = User.register(name=username, password=password, email=email)
+				u.put()
+				self.login(u)
+				self.redirect("/welcome")
 
-class LoginHandler(Handler):
+class Login(Handler):
+	"""Handles requests to log a user into the system"""
 	def render_front(self, username="", error=""):
 		self.render("login.html", username=username, error=error)
 
@@ -187,24 +126,251 @@ class LoginHandler(Handler):
 				error = "The username and password do not match."
 				self.render_front(username=username, error=error)
 
-class LogoutHandler(Handler):
+class Logout(Handler):
+	"""Handles requests to log a user out of the system"""
 	def get(self):
 		self.logout()
-		self.redirect("/signup")
+		self.redirect("/login")
 
-class WelcomeHandler(Handler):
+class Welcome(Handler):
+	"""Handles requests to render the welcome/front page."""
 	def get(self):
 		username = self.read_secure_cookie("username")
 		if self.user:
-			self.render('welcome.html', username=self.user.name)
+			posts = Post.by_created()
+			self.render('welcome.html', username=self.user.name, posts=posts)
 		else:
 			self.redirect("/signup")
 
+class NewPost(Handler):
+	"""Handles requests to render the new post page and create a post."""
+	def render_front(self, error=""):
+		self.render("newPost.html", name=self.user.name, error=error)
+
+	def get(self):
+		if self.user:
+			self.render_front()
+		else:
+			self.redirect('/login')
+
+	def post(self):
+		user = self.user.name
+		post = self.request.get("post")
+		if post and len(post.strip())>0:
+			post = Post(name=user, entry=post)
+			post.put()
+			time.sleep(0.1)
+			self.redirect("/welcome")
+		else:
+			error = "Please enter some text for the post."
+			self.render_front(error=error)
+
+class EditPost(Handler):
+	"""Handles requests to render the edit post page and edit a post."""
+	def render_front(self, post=None, error=""):
+		self.render("editPost.html", name=self.user.name, post=post, error=error)
+
+	def get(self, post_id):
+		key = db.Key.from_path("Post", int(post_id))
+		post = db.get(key)
+
+		if self.user and self.user.name==post.name:
+			self.render_front(post=post)
+		else:
+			self.redirect('/login')
+
+	def post(self, post_id):
+		key = db.Key.from_path("Post", int(post_id))
+		post = db.get(key)
+		user = self.user.name
+		changed_post = self.request.get("post")
+
+		if self.user and post and self.user.name==post.name:
+			if changed_post and len(changed_post.strip())>0:
+				post.entry = changed_post
+				post.put()
+				time.sleep(0.1)
+				self.redirect("/welcome")
+			else:
+				error = "Please enter some text for the post."
+				self.render_front(post=post, error=error)
+
+class DeletePost(Handler):
+	"""Handles requests to render the delete post page and delete a post."""
+	def render_front(self, post=None):
+		self.render("deletePost.html", name=self.user.name, post=post)
+
+	def get(self, post_id):
+		key = db.Key.from_path("Post", int(post_id))
+		post = db.get(key)
+
+		if not post:
+			self.error(404)
+			return
+		else:
+			if self.user and self.user.name==post.name:
+				self.render_front(post)
+			else:
+				self.redirect('/login')
+
+	def post(self, post_id):
+		key = db.Key.from_path("Post", int(post_id))
+		post = db.get(key)
+
+		user = self.user.name
+
+		if self.user and self.user.name==post.name:
+			post.delete()
+			time.sleep(0.1)
+			self.redirect('/welcome')
+		else:
+			self.redirect('/login')
+
+class NewComment(Handler):
+	"""Handles requests to render the new comments page and create comments."""
+	def render_front(self, post=None, error=""):
+		self.render("newComment.html", name=self.user.name, post=post, error=error)
+
+	def get(self, post_id):
+		if self.user:
+			key = db.Key.from_path("Post", int(post_id))
+			post = db.get(key)
+			self.render_front(post=post)
+		else:
+			self.redirect('/login')
+
+	def post(self, post_id):
+		if self.user:
+			key = db.Key.from_path("Post", int(post_id))
+			post = db.get(key)
+
+			content = self.request.get("comment")
+			if content:
+				author = self.user.name
+				post_id = post_id
+
+				comment = Comment(
+					author=author,
+					content=content,
+					post_id=post_id)
+				comment.put()
+				time.sleep(0.1)
+				self.redirect('/welcome')
+			else:
+				error = "Please enter some text for the comment."
+				self.render_front(post=post, error=error)
+		else:
+			self.redirect('/login')
+
+class EditComment(Handler):
+	"""Handles requests to render the edit comments page and edit comments for a post."""
+	def render_front(self, post=None, comment=None, error=""):
+		self.render("editComment.html", name=self.user.name, post=post, comment=comment, error=error)
+
+	def get(self, post_id, comment_id):
+		if self.user:
+			key = db.Key.from_path("Post", int(post_id))
+			post = db.get(key)
+
+			ckey = db.Key.from_path("Comment", int(comment_id))
+			comment = db.get(ckey)
+
+			self.render_front(post=post, comment=comment)
+		else:
+			self.redirect('/login')
+
+	def post(self, post_id, comment_id):
+		if self.user:
+			content = self.request.get("comment")
+
+			key = db.Key.from_path("Post", int(post_id))
+			post = db.get(key)
+
+			ckey = db.Key.from_path("Comment", int(comment_id))
+			comment = db.get(ckey)
+
+			if self.user.name==comment.author:
+				if content:
+					comment.content = content
+					comment.put()
+					time.sleep(0.1)
+					self.redirect('/welcome')
+				else:
+					error = "Please enter some text for the comment."
+					self.render_front(post=post, comment=comment, error=error)
+			else:
+				self.redirect('/welcome')
+
+		else:
+			self.redirect('/login')
+
+
+
+class DeleteComment(Handler):
+	"""Handles requests to render the delete comments page and edit comments for a post."""
+	def render_front(self, post=None, comment=None):
+		self.render("deleteComment.html", post=post, comment=comment)
+
+	def get(self, post_id, comment_id):
+		key = db.Key.from_path("Post", int(post_id))
+		post = db.get(key)
+
+		ckey = db.Key.from_path("Comment", int(comment_id))
+		comment = db.get(ckey)
+
+		self.render_front(post=post, comment=comment)
+
+	def post(self, post_id, comment_id):
+		if self.user:
+			content = self.request.get("comment")
+
+			key = db.Key.from_path("Post", int(post_id))
+			post = db.get(key)
+
+			ckey = db.Key.from_path("Comment", int(comment_id))
+			comment = db.get(ckey)
+
+			if self.user.name==comment.author:
+				comment.delete()
+				time.sleep(0.1)
+				self.redirect('/welcome')
+			else:
+				self.redirect('/welcome')
+
+		else:
+			self.redirect('/login')
+
+class LikePost(Handler):
+	"""Handles requests to like posts."""
+	def get(self, post_id):
+		if self.user:
+			key = db.Key.from_path("Post", int(post_id))
+			post = db.get(key)
+
+			if post.name != self.user.name:
+				like = Likes.all().filter("post_id =", post_id).filter("author =", self.user.name).get()
+				if like:
+					like.delete()
+				else:
+					like = Likes(author=self.user.name, post_id=post_id)
+					like.put()
+				time.sleep(0.1)
+			self.redirect('/welcome')
+		else:
+			self.redirect('/login')
+
 
 app = webapp2.WSGIApplication([
-	("/", MainPage),
-	("/signup", SignUpHandler),
-	("/login", LoginHandler),
-	("/welcome", WelcomeHandler),
-	("/logout", LogoutHandler)
+	("/", Welcome),
+	("/welcome", Welcome),
+	("/signup", SignUp),
+	("/login", Login),
+	("/logout", Logout),
+	("/new", NewPost),
+	("/like/(\d+)", LikePost),
+	("/edit/(\d+)", EditPost),
+	("/delete/(\d+)", DeletePost),
+	("/newcomment/(\d+)", NewComment),
+	("/edit/(\d+)/editcomment/(\d+)", EditComment),
+	("/delete/(\d+)/deletecomment/(\d+)", DeleteComment)
 	], debug=True)
