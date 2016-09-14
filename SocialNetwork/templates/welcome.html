@@ -6,59 +6,92 @@
 	<div class="row">
 		<h1 class="center">Welcome, {{username}}!</h1>
 	</div>
+
 	<div class="row">
-		<button class="center submit"><a href="/new">Create a post?</a></button>
+		<a href="/new" class="center submit">
+			<button class="btn">Create a post?</button>
+		</a>
 	</div>
 		{% if posts %}
 			{% for post in posts %}
 				<div class="row" style="border: 1px solid black;">
 					<div class="row" style="margin-bottom:0; padding-left:16px;">
-						<h2>{{ post.name }} </h2>
+						<h2><em>{{ post.name }}</em></h2>
 					</div>
 					<div class="row" style="margin-top:0; padding-left:48px;">
 						<pre style="font-size:16px;">{{post.entry | safe}}</pre>
 					</div>
-					{% if post.comments %}
-						{% for comment in post.comments %}
-							<div class="row" style="margin-top:0; padding-left:64px;">
-								<p style="margin-right:8px; padding-right:8px; border-right: 2px solid black;">
-									<strong style="color:#660066;">{{comment.author}}</strong>
-								</p>
-								<pre style="font-size:14px; color:#660066;">{{ comment.content | safe }}</pre>
-							</div>
-						{% endfor %}
-					{% endif %}
 
+					<!-- Buttons/Links for Like, Comment, Edit, Delete -->
 					<div class="row">
-						<a href="/like/{{post.key().id()}}" class="center submit">
-						<button style="width:100%;">
-						{% if post.already_liked(username) %}
-							Unlike
-						{% else %}
-							Like
-						{% endif %}
-						{{ post.likes }}
-						</button>
+					{% if post.name != username %}
+						<a href="/like/{{post.key().id()}}" class="center col-3">
+							<button class="btn">
+							{% if post.already_liked(username) %}
+								Unlike
+							{% else %}
+								Like
+							{% endif %}
+							<strong style="border-left: 2px solid black; padding-left:8px;">{{ post.likes }}</strong>
+							</button>
 						</a>
-						<a href="/newcomment/{{post.key().id()}}" class="center submit">
-							<button style="width:100%;">Comment</button>
-						</a>
+					{% else %}
+						<div class="center col-3 btn" style="text-align: center; padding-top: 6px">
+							Likes
+							<strong style="border-left: 2px solid black; padding-left: 8px;">
+								{{ post.likes }}
+							</strong>
+						</div>
+					{% endif %}
+					<a href="/newcomment/{{post.key().id()}}" class="center col-3">
+						<button class="btn">Comment</button>
+					</a>
 					{% if post.name == username %}
-						<a href="/edit/{{post.key().id()}}" class="center submit">
-							<button style="width:100%;">Edit</button>
+						<a href="/edit/{{post.key().id()}}" class="center col-3">
+							<button class="btn">Edit</button>
 						</a>
-						<a href="/delete/{{post.key().id()}}" class="center submit">
-							<button style="width:100%;">Delete</button>
+						<a href="/delete/{{post.key().id()}}" class="center col-3">
+							<button class="btn">Delete</button>
 						</a>
 					{% endif %}
 					</div>
+
+					<!-- Comment area -->
+					{% if post.comments %}
+						<div class="border-wall"></div>
+						{% for comment in post.comments %}
+							<div class="row com">
+								<div class="col-2">
+									<p>
+										<em><strong>{{comment.author}}</strong></em>
+									</p>
+								</div>
+								<div class="col-10">
+									<pre style="font-size:14px; color:#660066;">{{ comment.content | safe }}</pre>
+								</div>
+							</div>
+							{% if comment.author == username %}
+							<div class="row" style="margin-top:0;">
+								<a href="/edit/{{post.key().id()}}/editcomment/{{comment.key().id()}}" class="center col-2">
+									<button class="btn-small"><strong>Edit</strong></button>
+								</a>
+								<a href="/delete/{{post.key().id()}}/deletecomment/{{comment.key().id()}}" class="center col-2">
+									<button class="btn-small"><strong>Delete</strong></button>
+								</a>
+							</div>
+							{% endif %}
+						{% endfor %}
+					{% endif %}
+
+
 				</div>
 			{% endfor %}
 		{% endif %}
+
+	<div class="row" style="padding-top:32px; padding-bottom:32px;">
+		<a href="/login" class="center col-4"><button class="btn">Sign In as Different User?</button></a>
+		<a href="/logout" class="center col-4"><button class="btn">Logout?</button></a>
 	</div>
-	<div class="row">
-		<button class="center submit"><a href="/login">Sign In as Different User?</a></button>
-		<button class="center submit"><a href="/logout">Logout?</a></button>
 	</div>
 </div>
 
