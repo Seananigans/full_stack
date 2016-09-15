@@ -2,16 +2,52 @@
 	-moz-box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
+	font-size: max(1em, 16px);;
 }
 
-#submit {
+input[type=submit]{
+	background-color: #008800;
+	font-size: 16px;
+}
+
+hr {
+	height: 10px;
+	background-color: black;
+}
+
+.submit {
 	width: 33.33%;
 }
 
-input[type=submit]{ 
-	padding: 20px 10px; 
-	line-height: 28px; 
-	height= 50px;
+.border-wall {
+	border-top: 4px solid #333;
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.btn {
+	height: 32px;
+	width: 100%;
+	border-radius: 13px;
+	background-color: white;
+	font-size: 16px;
+}
+
+.btn-small {
+	height: 24px;
+	width: 100%;
+	border-radius: 7px;
+	background-color: #D0D;
+	font-size: 12px;
+}
+
+.com {
+	 margin-top: 0;
+	 margin-bottom: 0;
+	 margin-left: 64px;
+	 padding-left: 64px;
+	 color: #606;
 }
 
 .item-label {
@@ -40,8 +76,8 @@ input[type=submit]{
 }
 
 .grid {
-    max-width: 800px;
     width: 100%;
+    max-width: 800px;
 	margin-right: auto;
 	margin-left: auto;
 	padding-left: 15px;
