@@ -19,7 +19,7 @@ SSH port:
 
 Package Name |
 --------------: |
-**finger:** |
+**finger** |
 **apache2** |
 **libapache2-mod-wsgi** |
 **postgresql** |
@@ -31,8 +31,11 @@ Package Name |
 **oauth2** |
 **google-api-python-client** |
 
-A summary of installed software and configuration changes made.
-Hint: refer to the .bash_history files on the server!
+
+
 A list of any third-party resources you made use of to complete this project.
+* http://blog.udacity.com/2015/03/step-by-step-guide-install-lamp-linux-apache-mysql-python-ubuntu.html
+* https://pythonprogramming.net/practical-flask-introduction/
+
 Open your ~/.ssh/udacity_key.rsa file in a text editor and copy the contents of that file.
 During the submission process, paste the contents of the udacity_key.rsa file into the "Notes to Reviewer" field.
